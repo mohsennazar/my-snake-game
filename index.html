@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04111b">
+<title>Snake Classic - On Base</title>
+
+<!-- Farcaster / Base Mini-App Meta Tag -->
+<meta name="fc:frame" content='{"version":"next","imageUrl":"https://placehold.co/1200x630/030b14/38f58a.png?text=Snake+on+Base","button":{"title":"Play Snake","action":{"type":"launch_frame","name":"Snake Base","url":"https://my-snake-game-wheat.vercel.app/","splashImageUrl":"https://placehold.co/200x200/030b14/38f58a.png?text=Snake","splashBackgroundColor":"#030b14"}}}' />
+
+<!-- Ethers.js for Base -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+
+<style>
+:root{--bg:#030b14;--panel:#071724;--line:#0b8f76;--green:#38f58a;--green2:#9aff66;--text:#eaf5ff;--muted:#91a8bd;--red:#ff435b;--blue:#1a9cff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#09243a 0%,var(--bg) 58%);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+button{font:inherit;cursor:pointer}
+.app{width:min(1100px,100%);margin:auto;padding:16px 14px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border:1px solid #168d73;border-radius:14px;display:grid;place-items:center;background:#06251f;color:var(--green);font-size:25px;box-shadow:0 0 24px #12db7920}
+h1{font-size:clamp(20px,4vw,30px);letter-spacing:2px;margin:0;color:var(--green);text-shadow:0 0 22px #38f58a30}
+.subtitle{color:var(--muted);font-size:11px;margin-top:4px}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pill{border:1px solid #174b60;background:#061522;border-radius:999px;padding:8px 12px;color:#a9d4e8;font-size:11px;white-space:nowrap}
+.wallet-btn{border:1px solid #238f77;background:#08251f;color:var(--green);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:bold;white-space:nowrap;transition:0.2s}
+.wallet-btn.connected{border-color:#2b6ca3;background:#071d31;color:#8dd0ff}
+.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,.8fr);gap:16px;align-items:stretch}
+.board-card,.side-card{background:linear-gradient(145deg,#061723ed,#030d17f5);border:1px solid #126b60;border-radius:20px;box-shadow:0 14px 40px #0005}
+.board-card{padding:14px;min-width:0}
+.stats{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 2px 10px;direction:ltr}
+.stat{display:flex;align-items:center;gap:8px;font:600 14px Arial,sans-serif;color:#d7e8f4}
+.stat b{color:var(--green);font-size:18px}
+.stat .emoji{font-size:18px}
+canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border-radius:12px;background:#020b12;touch-action:none;image-rendering:pixelated}
+.side{display:flex;flex-direction:column;gap:14px}
+.side-card{padding:16px;border-color:#16445a}
+.side-card h2{font-size:14px;letter-spacing:1px;margin:0 0 12px;color:#f0f8ff}
+.arrows{display:grid;grid-template-columns:repeat(3,42px);gap:7px;justify-content:center;margin:10px 0}
+.key{height:40px;border:1px solid #20506a;border-radius:10px;background:#071c2b;color:var(--green);font-size:20px;display:grid;place-items:center}
+.key:active{background:#123d38}
+.control-hint{font-size:11px;line-height:1.8;color:var(--muted);text-align:center}
+.mobile-hint{margin-top:6px;color:#9bd8bc;font-size:11px;text-align:center}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.btn{border-radius:12px;border:1px solid #22556a;padding:10px 6px;color:var(--text);background:#0a2030;font-weight:bold;font-size:12px;transition:0.2s}
+.btn.primary{background:linear-gradient(135deg,#9aff66,#22df7a);color:#042114;border:0}
+.btn.onchain{background:linear-gradient(135deg,#0052ff,#1a9cff);color:#ffffff;border:0;margin-top:8px}
+.btn:hover,.wallet-btn:hover{filter:brightness(1.08)}
+.status{margin-top:12px;padding:12px;border-radius:12px;background:#030e18;border:1px solid #153c50}
+.status strong{display:block;font-size:13px;margin-bottom:4px}
+.status p{font-size:11px;color:var(--muted);line-height:1.6;margin:0}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#020914c9;border-radius:12px;padding:18px;text-align:center}
+.canvas-wrap{position:relative}
+.overlay-box{max-width:320px;padding:22px 18px;background:#061724f5;border:1px solid #168c6c;border-radius:18px;box-shadow:0 0 38px #21f18b15;display:flex;flex-direction:column;align-items:center}
+.overlay-box h2{font-size:22px;color:var(--green);margin:0 0 8px}
+.overlay-box p{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 14px}
+.overlay-box .btn{min-width:180px}
+.hidden{display:none!important}
+.top-nav{display:flex;gap:8px;margin:0 0 18px;padding:6px;background:#061522;border:1px solid #15394c;border-radius:14px;width:max-content;max-width:100%}
+.nav-tab{border:0;border-radius:10px;padding:10px 16px;background:transparent;color:var(--muted);font-size:12px;font-weight:700}
+.nav-tab.active{background:#0d302b;color:var(--green);box-shadow:inset 0 0 0 1px #1a795e}
+.page{display:none}.page.active{display:block}
+.page-heading{margin:4px 0 16px}.page-heading h2{margin:0 0 5px;font-size:22px;color:#f2f8ff}.page-heading p{margin:0;color:var(--muted);font-size:12px}
+.profile-card,.leader-card{background:linear-gradient(145deg,#081c2b,#04111b);border:1px solid #16445a;border-radius:20px;padding:22px;box-shadow:0 14px 40px #0004}
+.profile-top{display:flex;align-items:center;gap:16px;margin-bottom:20px}.avatar{position:relative;width:68px;height:68px;flex:0 0 68px;border-radius:22px;overflow:hidden;background:#10352e;border:2px solid #208a69;display:grid;place-items:center;font-size:28px;color:var(--green)}.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.avatar img[hidden]{display:none!important}.avatar-fallback{display:grid;place-items:center;width:100%;height:100%}
+.profile-name{font-size:19px;font-weight:800}.profile-handle{margin-top:5px;color:var(--muted);font-size:12px}.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.profile-stat,.leader-note{padding:14px;border-radius:13px;background:#030e18;border:1px solid #14374a}.profile-stat span{display:block;color:var(--muted);font-size:11px}.profile-stat b{display:block;margin-top:7px;font-size:18px;color:var(--green);overflow-wrap:anywhere}
+.leader-empty{text-align:center;padding:34px 18px;color:var(--muted)}.leader-empty .trophy{font-size:34px;margin-bottom:12px}.leader-empty strong{display:block;color:#eaf5ff;margin-bottom:8px}.leader-empty p{font-size:12px;line-height:1.7;max-width:480px;margin:0 auto}
+.leader-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.leader-count{font-size:12px;color:var(--muted)}.leader-table-wrap{overflow:auto;border:1px solid #14374a;border-radius:14px}.leader-table{width:100%;border-collapse:collapse;min-width:420px;text-align:left}.leader-table th{padding:12px 14px;background:#061522;color:#91a8bd;font-size:10px;letter-spacing:.8px;text-transform:uppercase}.leader-table td{padding:13px 14px;border-top:1px solid #143142;font-size:12px}.leader-table tr.is-you{background:#0a2c28}.leader-rank{color:var(--green);font-weight:800}.leader-player{display:flex;align-items:center;gap:10px;font-weight:700}.leader-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;background:#12372e}.leader-score{color:var(--green);font-weight:800}.leader-status{font-size:11px;color:var(--muted);margin-top:12px;min-height:16px}
+.lock-note{margin-top:10px;color:#b3c7d8;font-size:11px;line-height:1.6;text-align:center}.wallet-connect-cta{width:100%;margin-top:16px;padding:13px}
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .side{display:grid;grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+  <div class="brand"><div class="logo">🐍</div><div><h1>SNAKE</h1><div class="subtitle">CLASSIC ARCADE • EAT · GROW · SURVIVE</div></div></div>
+  <div class="header-actions">
+    <div class="pill">🐍 CLASSIC ARCADE</div>
+    <button class="wallet-btn" id="walletBtn" type="button">🔗 Connect Wallet</button>
+  </div>
+</header>
+
+<nav class="top-nav" aria-label="Main navigation">
+  <button class="nav-tab active" data-page="gamePage" type="button">🎮 Play</button>
+  <button class="nav-tab" data-page="leaderboardPage" type="button">🏆 Leaderboard</button>
+  <button class="nav-tab" data-page="profilePage" type="button">👤 Profile</button>
+</nav>
+
+<section class="page active" id="gamePage">
+<section class="layout">
+  <div class="board-card">
+    <div class="stats">
+      <div class="stat"><span class="emoji">🍎</span><span>SCORE: <b id="score">0</b></span></div>
+      <div class="stat"><span class="emoji">🏆</span><span>BEST: <b id="best">0</b></span></div>
+    </div>
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="game" width="600" height="600"></canvas>
+      <div class="overlay" id="overlay">
+        <div class="overlay-box">
+          <h2 id="overlayTitle">WELCOME</h2>
+          <p id="overlayText">Connect your wallet to unlock the game and save your scores.</p>
+          <button class="btn primary" id="overlayBtn">Connect Wallet to Play</button>
+          <button class="btn onchain hidden" id="submitScoreBtn">🔵 Submit Score On-Chain</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="side">
+    <section class="side-card controls-card">
+      <h2>🎮 Controls</h2>
+      <div class="arrows">
+        <span></span><button class="key" data-dir="up">↑</button><span></span>
+        <button class="key" data-dir="left">←</button><button class="key" data-dir="down">↓</button><button class="key" data-dir="right">→</button>
+      </div>
+      <div class="control-hint">Use arrow keys or swipe on screen</div>
+      <div class="actions">
+        <button class="btn primary" id="startBtn">Start</button>
+        <button class="btn" id="pauseBtn">Pause</button>
+        <button class="btn" id="restartBtn">Restart</button>
+        <button class="btn" id="soundBtn">🔊 Sound: Off</button>
+      </div>
+    </section>
+
+    <section class="side-card">
+      <h2>🐍 Base Contract</h2>
+      <div class="status"><strong id="statusTitle">Base Contract</strong><p id="statusText">0xB0C3d33c34c2E510708d0Ef512f2b39CfAF394DD</p></div>
+    </section>
+  </aside>
+</section>
+</section>
+
+<section class="page" id="leaderboardPage">
+  <div class="page-heading"><h2>Leaderboard</h2><p>Player scores recorded on Base.</p></div>
+  <div class="leader-card">
+    <div class="leader-toolbar"><div class="leader-count" id="leaderCount">Loading on-chain scores…</div><button class="btn" id="refreshLeaderboard" type="button">↻ Refresh</button></div>
+    <div class="leader-table-wrap"><table class="leader-table"><thead><tr><th>Rank</th><th>Player</th><th>Best score</th></tr></thead><tbody id="leaderRows"><tr><td colspan="3">Loading scores…</td></tr></tbody></table></div>
+    <div class="leader-status" id="leaderStatus">Rankings use the highest score submitted by each wallet on Base.</div>
+    <div class="profile-stat" style="margin-top:14px"><span>Your on-chain personal best</span><b id="leaderBest">—</b></div>
+  </div>
+</section>
+
+<section class="page" id="profilePage">
+  <div class="page-heading"><h2>Your profile</h2><p>Farcaster identity and connected Base wallet.</p></div>
+  <div class="profile-card">
+    <div class="profile-top"><div class="avatar" id="profileAvatar"><span class="avatar-fallback" id="avatarFallback">🐍</span><img id="profileAvatarImage" alt="" decoding="async" hidden /></div><div><div class="profile-name" id="profileName">Not connected</div><div class="profile-handle" id="profileHandle">Connect a wallet to unlock Snake</div></div></div>
+    <div class="profile-grid"><div class="profile-stat"><span>Farcaster</span><b id="profileFid">—</b></div><div class="profile-stat"><span>Base wallet</span><b id="profileWallet">Not connected</b></div><div class="profile-stat"><span>Personal best</span><b id="profileBest">0</b></div><div class="profile-stat"><span>Network</span><b id="profileNetwork">Base Mainnet</b></div></div>
+    <button class="wallet-btn wallet-connect-cta" id="profileConnectBtn" type="button">Connect wallet</button>
+    <p class="lock-note">Your wallet address is the permanent player identity used by the contract. Farcaster name and photo are display information.</p>
+  </div>
+</section>
+</main>
+
+<script>
+// لاجیک اصلی بازی
+(() => {
+  "use strict";
+
+  const CONTRACT_ADDRESS = "0xB0C3d33c34c2E510708d0Ef512f2b39CfAF394DD";
+  const BASE_CHAIN_ID = "0x2105"; // 8453
+  const BASE_RPC_URL = "https://mainnet.base.org";
+  const BASE_CHAIN_CONFIG = {
+    chainId: BASE_CHAIN_ID,
+    chainName: "Base",
+    nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+    rpcUrls: ["https://mainnet.base.org"],
+    blockExplorerUrls: ["https://basescan.org"]
+  };
+
+  const CONTRACT_ABI = [
+    "function submitScore(uint256 _score) external",
+    "function personalBest(address) view returns (uint256)"
+  ];
+
+  let activeProvider = null;
+  let activeRawProvider = null;
+  let userSigner = null;
+  let contractInstance = null;
+  let walletAddress = null;
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const overlay = document.getElementById("overlay");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlayText = document.getElementById("overlayText");
+  const overlayBtn = document.getElementById("overlayBtn");
+  const submitScoreBtn = document.getElementById("submitScoreBtn");
+  const walletBtn = document.getElementById("walletBtn");
+  const statusTitle = document.getElementById("statusTitle");
+  const statusText = document.getElementById("statusText");
+  const soundBtn = document.getElementById("soundBtn");
+
+  const GRID = 24;
+  const CELL = canvas.width / GRID;
+  let snake, food, dir, nextDir, score = 0, best = 0, state = "ready", timer = null;
+  let tickMs = 145, soundOn = false, audioContext = null;
+
+  try { best = Number(localStorage.getItem("snakeClassicBest") || 0); } catch(_) {}
+  bestEl.textContent = best;
+
+  window.getWalletProvider = async function() {
+    if (window.farcasterSdk?.wallet?.getEthereumProvider) {
+      try { return await window.farcasterSdk.wallet.getEthereumProvider(); } catch (err) { console.warn("Farcaster wallet unavailable", err); }
+    }
+    if (window.ethereum) {
+      return window.ethereum.providers?.[0] || window.ethereum;
+    }
+    return null;
+  };
+
+  function updateProfile() {
+    const user = window.farcasterContext?.user;
+    const displayName = user?.displayName || user?.display_name || user?.username || (walletAddress ? "Base player" : "Not connected");
+    document.getElementById("profileName").textContent = displayName;
+    document.getElementById("profileHandle").textContent = user?.username ? `@${user.username}` : (walletAddress ? "Connected player" : "Connect a wallet to unlock Snake");
+    document.getElementById("profileFid").textContent = user?.fid ? `FID ${user.fid}` : "Not available";
+    document.getElementById("profileWallet").textContent = walletAddress ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}` : "Not connected";
+    document.getElementById("profileBest").textContent = String(best);
+    document.getElementById("leaderBest").textContent = walletAddress ? `${best} pts` : "Connect wallet";
+    const avatar = document.getElementById("profileAvatarImage");
+    const fallback = document.getElementById("avatarFallback");
+    const imageCandidates = [...new Set([user?.pfpUrl, user?.pfp_url, user?.profile?.pfp?.url].filter(value => typeof value === "string").map(value => value.replace(/^http:/i, "https:")).filter(value => value.startsWith("https://")))];
+    let imageCandidateIndex = 0;
+    avatar.onerror = () => {
+      imageCandidateIndex++;
+      if (imageCandidateIndex < imageCandidates.length) { avatar.src = imageCandidates[imageCandidateIndex]; return; }
+      console.warn("Farcaster profile image could not be loaded", imageCandidates);
+      avatar.hidden = true;
+      fallback.hidden = false;
+    };
+    avatar.onload = () => { avatar.hidden = false; fallback.hidden = true; };
+    const profileImageUrl = imageCandidates[0];
+    fallback.textContent = String(displayName || "🐍").trim().charAt(0).toUpperCase() || "🐍";
+    if (profileImageUrl) { avatar.hidden = false; if (avatar.src !== profileImageUrl) avatar.src = profileImageUrl; }
+    else { avatar.removeAttribute("src"); avatar.hidden = true; fallback.hidden = false; }
+    document.getElementById("profileConnectBtn").textContent = walletAddress ? "Wallet connected ✓" : "Connect wallet";
+  }
+
+  function setPage(pageId) {
+    document.querySelectorAll(".page").forEach(page => page.classList.toggle("active", page.id === pageId));
+    document.querySelectorAll(".nav-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.page === pageId));
+    if (pageId === "leaderboardPage") loadLeaderboard();
+  }
+  document.querySelectorAll(".nav-tab").forEach(tab => tab.addEventListener("click", () => setPage(tab.dataset.page)));
+
+  let leaderboardLoading = false;
+  async function loadLeaderboard() {
+    if (leaderboardLoading) return;
+    leaderboardLoading = true;
+    const body = document.getElementById("leaderRows");
+    const count = document.getElementById("leaderCount");
+    const status = document.getElementById("leaderStatus");
+    count.textContent = "Loading on-chain scores…";
+    status.textContent = "Reading ScoreSubmitted events from Base.";
+    try {
+      const baseUrl = "https://base.blockscout.com/api/v2/addresses/" + CONTRACT_ADDRESS + "/logs";
+      let nextParams = null;
+      let pages = 0;
+      const allLogs = [];
+      do {
+        const url = new URL(baseUrl);
+        if (nextParams) Object.entries(nextParams).forEach(([key, value]) => url.searchParams.set(key, value));
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Explorer returned HTTP ${response.status}`);
+        const result = await response.json();
+        allLogs.push(...(result.items || []));
+        nextParams = result.next_page_params || null;
+        pages++;
+      } while (nextParams && pages < 100);
+
+      const players = new Map();
+      for (const log of allLogs) {
+        if (log.topics?.[0]?.toLowerCase() !== "0xa4efb826d613ebf578b228ec0c1dc125c4683fbd8b2bd173e2ff5faf002c4003") continue;
+        const params = Object.fromEntries((log.decoded?.parameters || []).map(item => [item.name, item.value]));
+        const player = String(params.player || (log.topics?.[1] ? "0x" + log.topics[1].slice(-40) : "")).toLowerCase();
+        let points = Number(params.score);
+        if (!Number.isFinite(points) && log.data?.length >= 66) points = Number(BigInt("0x" + log.data.slice(2, 66)));
+        if (!/^0x[0-9a-f]{40}$/.test(player) || !Number.isFinite(points)) continue;
+        const previous = players.get(player);
+        if (!previous || points > previous.score) players.set(player, { address: player, score: points, timestamp: Number(params.timestamp || 0) });
+      }
+
+      const ranked = [...players.values()].sort((a, b) => b.score - a.score || a.address.localeCompare(b.address));
+      body.replaceChildren();
+      if (!ranked.length) {
+        const row = body.insertRow();
+        const cell = row.insertCell(); cell.colSpan = 3; cell.textContent = "No scores have been submitted yet.";
+      }
+      ranked.forEach((player, index) => {
+        const isYou = walletAddress && player.address === walletAddress.toLowerCase();
+        const row = body.insertRow();
+        if (isYou) row.classList.add("is-you");
+        const rankCell = row.insertCell(); rankCell.className = "leader-rank"; rankCell.textContent = `#${index + 1}`;
+        const playerCell = row.insertCell();
+        const playerWrap = document.createElement("div"); playerWrap.className = "leader-player";
+        const ownProfile = window.farcasterContext?.user;
+        const ownPhoto = ownProfile?.pfpUrl || ownProfile?.pfp_url;
+        if (isYou && ownPhoto) {
+          const avatar = document.createElement("img"); avatar.className = "leader-avatar"; avatar.src = ownPhoto; avatar.alt = ""; avatar.onerror = () => avatar.remove(); playerWrap.append(avatar);
+        }
+        const label = document.createElement("span");
+        const farcasterName = isYou && ownProfile ? (ownProfile.displayName || ownProfile.display_name || ownProfile.username) : "";
+        label.textContent = farcasterName ? `${farcasterName} · You` : (isYou ? "You" : `${player.address.slice(0, 6)}…${player.address.slice(-4)}`);
+        playerWrap.append(label); playerCell.append(playerWrap);
+        const scoreCell = row.insertCell(); scoreCell.className = "leader-score"; scoreCell.textContent = `${player.score} pts`;
+      });
+      count.textContent = `${ranked.length} player${ranked.length === 1 ? "" : "s"} ranked`;
+      status.textContent = ranked.length ? "Sorted by each wallet’s highest score submitted to the contract. Player identity is the wallet address." : "The contract has not emitted any score events yet.";
+      if (walletAddress) {
+        const myRank = ranked.findIndex(player => player.address === walletAddress.toLowerCase());
+        document.getElementById("leaderBest").textContent = myRank >= 0 ? `#${myRank + 1} · ${ranked[myRank].score} pts` : "No submitted score yet";
+      }
+    } catch (err) {
+      console.error("Leaderboard load failed", err);
+      body.replaceChildren();
+      const row = body.insertRow(); const cell = row.insertCell(); cell.colSpan = 3; cell.textContent = "Could not load scores. Please try again.";
+      count.textContent = "Leaderboard unavailable";
+      status.textContent = err?.message || "Could not read score events from the Base explorer.";
+    } finally {
+      leaderboardLoading = false;
+    }
+  }
+  document.getElementById("refreshLeaderboard").addEventListener("click", loadLeaderboard);
+
+  let walletConnecting = false;
+  async function connectWallet() {
+    if (walletAddress && contractInstance) return true;
+    if (walletConnecting) return false;
+    walletConnecting = true;
+    walletBtn.disabled = true;
+    statusTitle.textContent = "Connecting wallet…";
+    statusText.textContent = "Approve the connection request in your wallet.";
+    try {
+      if (!window.farcasterSdk && window.farcasterSdkReady) {
+        await Promise.race([window.farcasterSdkReady.catch(() => null), new Promise(resolve => setTimeout(resolve, 5000))]);
+      }
+      const raw = await window.getWalletProvider();
+      if (!raw) {
+        statusTitle.textContent = "Wallet unavailable";
+        statusText.textContent = "Open this app inside Farcaster, or install/unlock an EVM wallet extension.";
+        return false;
+      }
+
+      const accounts = await raw.request({ method: "eth_requestAccounts" });
+      if (!accounts?.[0]) throw new Error("The wallet did not return an account. Approve access and try again.");
+      const selectedAddress = accounts[0];
+
+      let chainId = String(await raw.request({ method: "eth_chainId" })).toLowerCase();
+      if (chainId !== BASE_CHAIN_ID) {
+        try {
+          await raw.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN_ID }] });
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            await raw.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN_CONFIG] });
+          } else {
+            throw switchError;
+          }
+        }
+        chainId = String(await raw.request({ method: "eth_chainId" })).toLowerCase();
+      }
+      if (chainId !== BASE_CHAIN_ID) throw new Error("Switch your wallet to Base Mainnet to play.");
+
+      activeProvider = new ethers.BrowserProvider(raw);
+      activeRawProvider = raw;
+      userSigner = await activeProvider.getSigner(selectedAddress);
+      walletAddress = selectedAddress;
+      contractInstance = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, userSigner);
+      walletBtn.textContent = `🔗 ${walletAddress.slice(0,6)}…${walletAddress.slice(-4)}`;
+      walletBtn.classList.add("connected");
+      statusTitle.textContent = "Wallet connected · Base Mainnet";
+      statusText.textContent = walletAddress;
+
+      try {
+        const chainBest = await contractInstance.personalBest(walletAddress);
+        best = Number(chainBest);
+        bestEl.textContent = best;
+        try { localStorage.setItem("snakeClassicBest", String(best)); } catch(_) {}
+      } catch (readError) {
+        console.warn("Connected wallet, but personal best could not be read", readError);
+        statusText.textContent = `${walletAddress} · connected; score lookup unavailable`;
+      }
+      updateProfile();
+      return true;
+    } catch (err) {
+      console.error("Wallet connection failed", err);
+      statusTitle.textContent = "Wallet connection failed";
+      statusText.textContent = err?.shortMessage || err?.message || "Could not connect. Check the wallet and network, then retry.";
+      walletAddress = null;
+      contractInstance = null;
+      userSigner = null;
+      activeProvider = null;
+      activeRawProvider = null;
+      walletBtn.textContent = "🔗 Connect Wallet";
+      walletBtn.classList.remove("connected");
+      updateProfile();
+      return false;
+    } finally {
+      walletConnecting = false;
+      walletBtn.disabled = false;
+    }
+  }
+
+  async function waitForTransactionReceipt(txHash, timeoutMs = 120000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const receipt = await activeRawProvider.request({ method: "eth_getTransactionReceipt", params: [txHash] });
+      if (receipt) return receipt;
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    return null;
+  }
+
+  async function estimateScoreGas(transaction) {
+    try {
+      return await activeRawProvider.request({ method: "eth_estimateGas", params: [transaction] });
+    } catch (walletRpcError) {
+      const response = await fetch(BASE_RPC_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_estimateGas", params: [transaction] })
+      });
+      if (!response.ok) throw walletRpcError;
+      const result = await response.json();
+      if (result.error) throw new Error(result.error.message || "Base RPC could not estimate transaction gas.");
+      return result.result;
+    }
+  }
+
+  async function submitScore() {
+    if (!walletAddress || !contractInstance || score <= 0) return;
+    let submittedHash = "";
+    let receiptReceived = false;
+    try {
+      submitScoreBtn.disabled = true;
+      submitScoreBtn.textContent = "⏳ Preparing transaction…";
+      const chainId = String(await activeRawProvider.request({ method: "eth_chainId" })).toLowerCase();
+      if (chainId !== BASE_CHAIN_ID) throw new Error("Your wallet switched away from Base. Reconnect it to Base and retry.");
+      const callData = contractInstance.interface.encodeFunctionData("submitScore", [score]);
+      const estimateHex = await estimateScoreGas({ from: walletAddress, to: CONTRACT_ADDRESS, data: callData });
+      const gasLimit = BigInt(estimateHex) * 125n / 100n + 5000n;
+      submitScoreBtn.textContent = "✍️ Approve the transaction in your wallet";
+      submittedHash = await activeRawProvider.request({
+        method: "eth_sendTransaction",
+        params: [{
+          from: walletAddress,
+          to: CONTRACT_ADDRESS,
+          data: callData,
+          gas: "0x" + gasLimit.toString(16)
+        }]
+      });
+      submitScoreBtn.textContent = "⏳ Waiting for Base confirmation…";
+      statusTitle.textContent = "Transaction sent";
+      statusText.textContent = submittedHash;
+      const receipt = await waitForTransactionReceipt(submittedHash);
+      if (!receipt) {
+        overlayTitle.textContent = "TRANSACTION PENDING";
+        overlayText.textContent = `Transaction sent. It is still waiting for confirmation. Do not submit again. Hash: ${submittedHash}`;
+        submitScoreBtn.textContent = "⏳ Transaction pending";
+        return;
+      }
+      receiptReceived = true;
+      if (BigInt(receipt.status) === 0n) throw new Error(`The transaction was mined but reverted. Hash: ${submittedHash}`);
+      submitScoreBtn.textContent = "✅ Recorded On-Chain!";
+      statusTitle.textContent = "Score recorded on Base";
+      statusText.textContent = `Transaction: ${submittedHash}`;
+      overlayTitle.textContent = "SCORE SAVED";
+      overlayText.textContent = `${score} points were recorded on Base.`;
+      try {
+        const chainBest = await contractInstance.personalBest(walletAddress);
+        best = Math.max(best, Number(chainBest));
+        bestEl.textContent = best;
+        updateProfile();
+        try { localStorage.setItem("snakeClassicBest", String(best)); } catch(_) {}
+      } catch (readError) {
+        console.warn("Score was recorded, but personal best could not be refreshed", readError);
+        statusText.textContent = `Score saved · personal best refresh failed · ${submittedHash}`;
+      }
+      loadLeaderboard();
+    } catch (e) {
+      console.error(e);
+      const errorMessage = String(e?.shortMessage || e?.reason || e?.info?.error?.message || e?.error?.message || e?.message || "Transaction could not be submitted.").replace(/\s+/g, " ").slice(0, 320);
+      statusText.textContent = errorMessage;
+      if (submittedHash && !receiptReceived) {
+        submitScoreBtn.textContent = "⏳ Transaction pending";
+        overlayTitle.textContent = "TRANSACTION PENDING";
+        overlayText.textContent = `The wallet sent this transaction, but confirmation lookup failed. Do not submit again. Hash: ${submittedHash}`;
+        return;
+      }
+      submitScoreBtn.disabled = false;
+      submitScoreBtn.textContent = "❌ Failed · Retry";
+      overlayTitle.textContent = receiptReceived ? "TRANSACTION REVERTED" : "TRANSACTION FAILED";
+      overlayText.textContent = errorMessage;
+    }
+  }
+
+  function reset() {
+    if (timer) clearInterval(timer);
+    snake = [{x:9,y:12},{x:8,y:12},{x:7,y:12}];
+    dir = {x:1,y:0}; nextDir = {x:1,y:0};
+    score = 0; tickMs = 145; state = "ready";
+    scoreEl.textContent = "0";
+    submitScoreBtn.classList.add("hidden");
+    placeFood();
+    draw();
+    showOverlay("SNAKE CLASSIC", "Swipe on screen or use arrows to move.", "Start Game");
+  }
+
+  function placeFood() {
+    let p;
+    do { p = {x: Math.floor(Math.random()*GRID), y: Math.floor(Math.random()*GRID)}; }
+    while (snake.some(s => s.x === p.x && s.y === p.y));
+    food = p;
+  }
+
+  function start() {
+    if (!walletAddress || !contractInstance) {
+      showOverlay("WALLET REQUIRED", "Connect your Base wallet before playing. Your score will be tied to this wallet.", "Connect Wallet to Play");
+      setPage("gamePage");
+      return;
+    }
+    if (state === "running") return;
+    if (state === "over" || state === "won") reset();
+    state = "running";
+    overlay.classList.add("hidden");
+    if (timer) clearInterval(timer);
+    timer = setInterval(step, tickMs);
+  }
+
+  function pause() {
+    if (state === "running") {
+      state = "paused";
+      clearInterval(timer);
+      showOverlay("PAUSED", "Game is paused.", "Resume");
+    } else if (state === "paused") {
+      state = "ready";
+      start();
+    }
+  }
+
+  function gameOver() {
+    state = "over";
+    clearInterval(timer);
+    if (score > best) {
+      best = score;
+      bestEl.textContent = best;
+      try { localStorage.setItem("snakeClassicBest", String(best)); } catch(_) {}
+    }
+    updateProfile();
+    if (score > 0 && walletAddress && contractInstance) {
+      submitScoreBtn.classList.remove("hidden");
+      submitScoreBtn.textContent = `🔵 Save ${score} points on Base`;
+      submitScoreBtn.disabled = false;
+    }
+    const endMessage = score > 0
+      ? `Your score: ${score} · Best: ${best}. Tap Save on Base to confirm the transaction.`
+      : "No points to submit. Eat an apple to score before your next run.";
+    showOverlay("GAME OVER", endMessage, "Play Again");
+  }
+
+  function playEatSound() {
+    if (!soundOn) return;
+    try {
+      audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") audioContext.resume();
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(620, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(920, audioContext.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.12, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+      oscillator.connect(gain).connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (err) { console.warn("Audio unavailable", err); }
+  }
+
+  function changeDirection(name) {
+    const map = {up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
+    const d = map[name];
+    if (!d || (d.x === -dir.x && d.y === -dir.y)) return;
+    nextDir = d;
+  }
+
+  function step() {
+    if (state !== "running") return;
+    dir = nextDir;
+    const head = {x: (snake[0].x + dir.x + GRID) % GRID, y: (snake[0].y + dir.y + GRID) % GRID};
+
+    const eating = head.x === food.x && head.y === food.y;
+    const bodyToCheck = eating ? snake : snake.slice(0, -1);
+    if (bodyToCheck.some(s => s.x === head.x && s.y === head.y)) {
+      gameOver();
+      return;
+    }
+
+    snake.unshift(head);
+    if (eating) {
+      playEatSound();
+      score += 10;
+      scoreEl.textContent = score;
+      placeFood();
+      tickMs = Math.max(70, 145 - Math.floor(score/50)*8);
+      clearInterval(timer);
+      timer = setInterval(step, tickMs);
+    } else {
+      snake.pop();
+    }
+    draw();
+  }
+
+  function draw() {
+    ctx.fillStyle = "#020b12";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    if (food) {
+      ctx.fillStyle = "#ff385c";
+      ctx.beginPath();
+      ctx.arc(food.x*CELL+CELL/2, food.y*CELL+CELL/2, CELL*.36, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    snake.forEach((s, i) => {
+      ctx.fillStyle = i === 0 ? "#8eff55" : `hsl(${140 - i*1.2}, 85%, 50%)`;
+      ctx.fillRect(s.x*CELL+2, s.y*CELL+2, CELL-4, CELL-4);
+    });
+  }
+
+  function showOverlay(t, msg, btn) {
+    overlayTitle.textContent = t;
+    overlayText.textContent = msg;
+    overlayBtn.textContent = btn;
+    overlay.classList.remove("hidden");
+  }
+
+  let touchX = 0, touchY = 0;
+  canvas.addEventListener("touchstart", e => {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, {passive:true});
+
+  canvas.addEventListener("touchend", e => {
+    if (!touchX || !touchY) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    const dy = e.changedTouches[0].clientY - touchY;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) > 20) {
+      if (Math.abs(dx) > Math.abs(dy)) changeDirection(dx > 0 ? "right" : "left");
+      else changeDirection(dy > 0 ? "down" : "up");
+      if (state === "ready" && walletAddress) start();
+    }
+    touchX = 0; touchY = 0;
+  }, {passive:true});
+
+  walletBtn.addEventListener("click", connectWallet);
+  document.getElementById("profileConnectBtn").addEventListener("click", connectWallet);
+  submitScoreBtn.addEventListener("click", submitScore);
+  soundBtn.addEventListener("click", () => {
+    soundOn = !soundOn;
+    soundBtn.textContent = soundOn ? "🔊 Sound: On" : "🔊 Sound: Off";
+  });
+  overlayBtn.addEventListener("click", () => {
+    if (!walletAddress || !contractInstance) { connectWallet(); return; }
+    if (state === "over" || state === "won") reset();
+    start();
+  });
+
+  document.querySelectorAll("[data-dir]").forEach(b => {
+    b.addEventListener("click", () => {
+      changeDirection(b.dataset.dir);
+      if (state === "ready" && walletAddress) start();
+    });
+  });
+
+  document.addEventListener("keydown", e => {
+    const map = {ArrowUp:"up",w:"up",ArrowDown:"down",s:"down",ArrowLeft:"left",a:"left",ArrowRight:"right",d:"right"};
+    if (map[e.key]) {
+      e.preventDefault();
+      changeDirection(map[e.key]);
+      if (state === "ready" && walletAddress) start();
+    }
+  });
+
+  document.getElementById("startBtn").addEventListener("click", start);
+  document.getElementById("pauseBtn").addEventListener("click", pause);
+  document.getElementById("restartBtn").addEventListener("click", () => { if (!walletAddress) { connectWallet(); return; } reset(); start(); });
+
+  reset();
+  updateProfile();
+  window.addEventListener("farcastercontextready", updateProfile);
+})();
+</script>
+
+<!-- دقیقا طبق مستندات رسمی: ایمپورت ماژول فارکستر در پایین‌ترین نقطه فایل -->
+<script type="module">
+  window.farcasterSdkReady = (async () => {
+    let sdkModule;
+    try {
+      sdkModule = await import('https://esm.sh/@farcaster/miniapp-sdk');
+    } catch (primaryError) {
+      console.warn("Primary Farcaster SDK CDN failed; trying jsDelivr", primaryError);
+      sdkModule = await import('https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/+esm');
+    }
+    const { sdk } = sdkModule;
+    window.farcasterSdk = sdk;
+    try {
+      window.farcasterContext = await sdk.context;
+      window.dispatchEvent(new Event("farcastercontextready"));
+    } catch (contextError) {
+      console.warn("Farcaster user context unavailable", contextError);
+    }
+    await sdk.actions.ready();
+    console.log("Farcaster Mini-App ready called successfully");
+    return sdk;
+  })();
+  window.farcasterSdkReady.catch(err => console.error("Farcaster Mini-App SDK failed to load or ready() failed:", err));
+</script>
+</body>
+</html>
