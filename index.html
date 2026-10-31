@@ -407,12 +407,37 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     }
   }
 
+  async function readTransactionReceipt(txHash) {
+    let providerError;
+    try {
+      const receipt = await activeRawProvider.request({ method: "eth_getTransactionReceipt", params: [txHash] });
+      if (receipt) return receipt;
+    } catch (error) {
+      providerError = error;
+    }
+
+    try {
+      const response = await fetch(BASE_RPC_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionReceipt", params: [txHash] })
+      });
+      if (!response.ok) throw new Error(`Base RPC returned HTTP ${response.status}`);
+      const result = await response.json();
+      if (result.error) throw new Error(result.error.message || "Base RPC could not read the transaction receipt.");
+      if (result.result) return result.result;
+    } catch (rpcError) {
+      console.warn("Could not read transaction receipt from Base RPC", providerError, rpcError);
+    }
+    return null;
+  }
+
   async function waitForTransactionReceipt(txHash, timeoutMs = 120000) {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
-      const receipt = await activeRawProvider.request({ method: "eth_getTransactionReceipt", params: [txHash] });
+      const receipt = await readTransactionReceipt(txHash);
       if (receipt) return receipt;
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
     return null;
   }
@@ -458,10 +483,16 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
       submitScoreBtn.textContent = "⏳ Waiting for Base confirmation…";
       statusTitle.textContent = "Transaction sent";
       statusText.textContent = submittedHash;
-      const receipt = await waitForTransactionReceipt(submittedHash);
+      let receipt;
+      try {
+        receipt = await waitForTransactionReceipt(submittedHash);
+      } catch (lookupError) {
+        console.warn("Receipt lookup stopped unexpectedly; transaction may still be pending", lookupError);
+        receipt = null;
+      }
       if (!receipt) {
         overlayTitle.textContent = "TRANSACTION PENDING";
-        overlayText.textContent = `Transaction sent. It is still waiting for confirmation. Do not submit again. Hash: ${submittedHash}`;
+        overlayText.textContent = `The transaction was sent, but Base receipt lookup is temporarily unavailable. Check its status before trying again. Do not submit again. Hash: ${submittedHash}`;
         submitScoreBtn.textContent = "⏳ Transaction pending";
         return;
       }
