@@ -27,23 +27,25 @@ h1{font-size:clamp(20px,4vw,30px);letter-spacing:2px;margin:0;color:var(--green)
 .pill{border:1px solid #174b60;background:#061522;border-radius:999px;padding:8px 12px;color:#a9d4e8;font-size:11px;white-space:nowrap}
 .wallet-btn{border:1px solid #238f77;background:#08251f;color:var(--green);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:bold;white-space:nowrap;transition:0.2s}
 .wallet-btn.connected{border-color:#2b6ca3;background:#071d31;color:#8dd0ff}
-.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,.8fr);gap:16px;align-items:stretch}
-.board-card,.side-card{background:linear-gradient(145deg,#061723ed,#030d17f5);border:1px solid #126b60;border-radius:20px;box-shadow:0 14px 40px #0005}
+.board-card{background:linear-gradient(145deg,#061723ed,#030d17f5);border:1px solid #126b60;border-radius:20px;box-shadow:0 14px 40px #0005}
 .board-card{padding:14px;min-width:0}
 .stats{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 2px 10px;direction:ltr}
 .stat{display:flex;align-items:center;gap:8px;font:600 14px Arial,sans-serif;color:#d7e8f4}
 .stat b{color:var(--green);font-size:18px}
 .stat .emoji{font-size:18px}
 canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border-radius:12px;background:#020b12;touch-action:none;image-rendering:pixelated}
-.side{display:flex;flex-direction:column;gap:14px}
-.side-card{padding:16px;border-color:#16445a}
-.side-card h2{font-size:14px;letter-spacing:1px;margin:0 0 12px;color:#f0f8ff}
-.arrows{display:grid;grid-template-columns:repeat(3,42px);gap:7px;justify-content:center;margin:10px 0}
-.key{height:40px;border:1px solid #20506a;border-radius:10px;background:#071c2b;color:var(--green);font-size:20px;display:grid;place-items:center}
-.key:active{background:#123d38}
-.control-hint{font-size:11px;line-height:1.8;color:var(--muted);text-align:center}
-.mobile-hint{margin-top:6px;color:#9bd8bc;font-size:11px;text-align:center}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.game-shell{width:min(900px,100%);margin:0 auto}
+.board-card{padding:clamp(8px,2vw,16px)}
+.game-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.game-stats{display:flex;align-items:center;gap:clamp(10px,3vw,24px);flex-wrap:wrap}
+.game-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.game-tool{min-height:36px;border:1px solid #20506a;border-radius:10px;background:#071c2b;color:#c9e2ef;padding:7px 10px;font-weight:700;font-size:11px}
+.game-tool:focus-visible,.btn:focus-visible,.wallet-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.game-tool:disabled{opacity:.4;cursor:not-allowed}
+.track-select{max-width:142px}
+.canvas-wrap{width:min(78vh,100%);margin:0 auto}
+.game-status{min-height:20px;text-align:center;color:#9bd8bc;font-size:11px;padding-top:7px}
+.power-food{color:#ffd76a}
 .btn{border-radius:12px;border:1px solid #22556a;padding:10px 6px;color:var(--text);background:#0a2030;font-weight:bold;font-size:12px;transition:0.2s}
 .btn.primary{background:linear-gradient(135deg,#9aff66,#22df7a);color:#042114;border:0}
 .btn.onchain{background:linear-gradient(135deg,#0052ff,#1a9cff);color:#ffffff;border:0;margin-top:8px}
@@ -56,7 +58,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
 .overlay-box{max-width:320px;padding:22px 18px;background:#061724f5;border:1px solid #168c6c;border-radius:18px;box-shadow:0 0 38px #21f18b15;display:flex;flex-direction:column;align-items:center}
 .overlay-box h2{font-size:22px;color:var(--green);margin:0 0 8px}
 .overlay-box p{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 14px}
-.overlay-box .btn{min-width:180px}
+.overlay-box .btn{min-width:200px;margin-top:7px}
 .hidden{display:none!important}
 .top-nav{display:flex;gap:8px;margin:0 0 18px;padding:6px;background:#061522;border:1px solid #15394c;border-radius:14px;width:max-content;max-width:100%}
 .nav-tab{border:0;border-radius:10px;padding:10px 16px;background:transparent;color:var(--muted);font-size:12px;font-weight:700}
@@ -70,8 +72,15 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
 .leader-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.leader-count{font-size:12px;color:var(--muted)}.leader-table-wrap{overflow:auto;border:1px solid #14374a;border-radius:14px}.leader-table{width:100%;border-collapse:collapse;min-width:420px;text-align:left}.leader-table th{padding:12px 14px;background:#061522;color:#91a8bd;font-size:10px;letter-spacing:.8px;text-transform:uppercase}.leader-table td{padding:13px 14px;border-top:1px solid #143142;font-size:12px}.leader-table tr.is-you{background:#0a2c28}.leader-rank{color:var(--green);font-weight:800}.leader-player{display:flex;align-items:center;gap:10px;font-weight:700}.leader-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;background:#12372e}.leader-score{color:var(--green);font-weight:800}.leader-status{font-size:11px;color:var(--muted);margin-top:12px;min-height:16px}
 .lock-note{margin-top:10px;color:#b3c7d8;font-size:11px;line-height:1.6;text-align:center}.wallet-connect-cta{width:100%;margin-top:16px;padding:13px}
 @media(max-width:768px){
-  .layout{grid-template-columns:1fr}
-  .side{display:grid;grid-template-columns:1fr}
+  .app{padding:10px 9px}
+  .game-toolbar{align-items:flex-start}
+  .game-tools{width:100%;justify-content:center}
+  .canvas-wrap{width:min(72vh,100%)}
+  .game-stats{width:100%;justify-content:space-between}
+}
+@media(max-height:700px) and (orientation:landscape){
+  .app{padding-top:6px}.top-nav{margin-bottom:7px;padding:3px}.nav-tab{padding:6px 10px}
+  .canvas-wrap{width:min(66vh,70vw)}.game-toolbar{margin-bottom:4px}
 }
 </style>
 </head>
@@ -92,48 +101,42 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
 </nav>
 
 <section class="page active" id="gamePage">
-<section class="layout">
+<section class="game-shell">
   <div class="board-card">
-    <div class="stats">
-      <div class="stat"><span class="emoji">🍎</span><span>SCORE: <b id="score">0</b></span></div>
-      <div class="stat"><span class="emoji">🏆</span><span>BEST: <b id="best">0</b></span></div>
+    <div class="game-toolbar">
+      <div class="game-stats">
+        <div class="stat"><span class="emoji">🍎</span><span>SCORE: <b id="score">0</b></span></div>
+        <div class="stat"><span class="emoji">🏆</span><span>BEST: <b id="best">0</b></span></div>
+        <div class="stat"><span class="emoji">⚡</span><span>LEVEL: <b id="level">1</b></span></div>
+      </div>
+      <div class="game-tools" aria-label="Game controls">
+        <button class="game-tool" id="startBtn" type="button" disabled>🔒 Connect wallet first</button>
+        <button class="game-tool" id="pauseBtn" type="button" disabled>⏸ Pause</button>
+        <button class="game-tool" id="restartBtn" type="button" disabled>↻ Restart</button>
+        <select class="game-tool track-select" id="musicTrack" aria-label="Arcade music track">
+          <option value="pixel">🎵 Pixel Sunrise</option>
+          <option value="neon">🎵 Neon Sprint</option>
+          <option value="orbit">🎵 Arcade Orbit</option>
+        </select>
+        <button class="game-tool" id="soundBtn" type="button" aria-pressed="true">♫ Music On</button>
+      </div>
     </div>
     <div class="canvas-wrap" id="canvasWrap">
       <canvas id="game" width="600" height="600"></canvas>
       <div class="overlay" id="overlay">
         <div class="overlay-box">
-          <h2 id="overlayTitle">WELCOME</h2>
-          <p id="overlayText">Connect your wallet to unlock the game and save your scores.</p>
-          <button class="btn primary" id="overlayBtn">Connect Wallet to Play</button>
+          <h2 id="overlayTitle">CONNECT TO PLAY</h2>
+          <p id="overlayText">Connect your wallet first. Then start your run. Music begins after your first tap.</p>
+          <button class="btn primary" id="overlayBtn">1 · Connect Wallet</button>
           <button class="btn onchain hidden" id="submitScoreBtn">🔵 Submit Score On-Chain</button>
         </div>
       </div>
     </div>
+    <div class="game-status" id="gameStatus" aria-live="polite">Swipe or use arrow keys · Golden fruit gives bonus points and slow motion.</div>
   </div>
-
-  <aside class="side">
-    <section class="side-card controls-card">
-      <h2>🎮 Controls</h2>
-      <div class="arrows">
-        <span></span><button class="key" data-dir="up">↑</button><span></span>
-        <button class="key" data-dir="left">←</button><button class="key" data-dir="down">↓</button><button class="key" data-dir="right">→</button>
-      </div>
-      <div class="control-hint">Use arrow keys or swipe on screen</div>
-      <div class="actions">
-        <button class="btn primary" id="startBtn">Start</button>
-        <button class="btn" id="pauseBtn">Pause</button>
-        <button class="btn" id="restartBtn">Restart</button>
-        <button class="btn" id="soundBtn">🔊 Sound: Off</button>
-      </div>
-    </section>
-
-    <section class="side-card">
-      <h2>🐍 Base Contract</h2>
-      <div class="status"><strong id="statusTitle">Base Contract</strong><p id="statusText">0xB0C3d33c34c2E510708d0Ef512f2b39CfAF394DD</p></div>
-    </section>
-  </aside>
 </section>
 </section>
+<div class="hidden" aria-hidden="true"><strong id="statusTitle">Base Contract</strong><p id="statusText">0xB0C3d33c34c2E510708d0Ef512f2b39CfAF394DD</p></div>
 
 <section class="page" id="leaderboardPage">
   <div class="page-heading"><h2>Leaderboard</h2><p>Player scores recorded on Base.</p></div>
@@ -196,11 +199,23 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
   const statusTitle = document.getElementById("statusTitle");
   const statusText = document.getElementById("statusText");
   const soundBtn = document.getElementById("soundBtn");
+  const musicTrack = document.getElementById("musicTrack");
+  const startBtn = document.getElementById("startBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const levelEl = document.getElementById("level");
+  const gameStatus = document.getElementById("gameStatus");
 
   const GRID = 24;
   const CELL = canvas.width / GRID;
-  let snake, food, dir, nextDir, score = 0, best = 0, state = "ready", timer = null;
-  let tickMs = 145, soundOn = false, audioContext = null;
+  let snake, food, bonusFood = null, bonusExpiresAt = 0, dir, nextDir, score = 0, best = 0, state = "ready", timer = null;
+  let tickMs = 145, soundOn = true, audioContext = null, musicGain = null, musicTimer = null, musicStep = 0;
+  let applesEaten = 0, level = 1, slowUntil = 0;
+  const ARCADE_TRACKS = {
+    pixel: { melody:[76,79,83,79,74,79,83,86,76,79,83,79,74,71,74,79], bass:[48,48,55,55], chords:[[60,64,67],[55,59,62]], wave:"square" },
+    neon: { melody:[81,84,88,91,88,84,79,84,81,84,88,93,91,88,84,79], bass:[45,45,52,52], chords:[[57,60,64],[52,55,59]], wave:"triangle" },
+    orbit: { melody:[72,76,79,84,83,79,76,74,72,76,81,84,86,84,81,79], bass:[41,41,48,48], chords:[[53,57,60],[48,52,55]], wave:"sine" }
+  };
 
   try { best = Number(localStorage.getItem("snakeClassicBest") || 0); } catch(_) {}
   bestEl.textContent = best;
@@ -214,6 +229,48 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     }
     return null;
   };
+
+  function playMusicNote(note, duration, wave, volume, when = audioContext.currentTime) {
+    if (!note || !audioContext || !musicGain) return;
+    const oscillator = audioContext.createOscillator();
+    const envelope = audioContext.createGain();
+    oscillator.type = wave;
+    oscillator.frequency.setValueAtTime(440 * Math.pow(2, (note - 69) / 12), when);
+    envelope.gain.setValueAtTime(0.0001, when);
+    envelope.gain.exponentialRampToValueAtTime(volume, when + 0.012);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+    oscillator.connect(envelope).connect(musicGain);
+    oscillator.start(when);
+    oscillator.stop(when + duration + 0.02);
+  }
+
+  function startMusic() {
+    if (!soundOn) return;
+    try {
+      audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+      musicGain ||= (() => { const gain = audioContext.createGain(); gain.gain.value = 0.16; gain.connect(audioContext.destination); return gain; })();
+      musicGain.gain.setTargetAtTime(0.16, audioContext.currentTime, 0.04);
+      if (audioContext.state === "suspended") audioContext.resume().catch(err => console.warn("Audio resume failed", err));
+      if (musicTimer) clearInterval(musicTimer);
+      musicStep = 0;
+      musicTimer = setInterval(() => {
+        if (!soundOn || !audioContext || audioContext.state !== "running") return;
+        const track = ARCADE_TRACKS[musicTrack.value] || ARCADE_TRACKS.pixel;
+        const when = audioContext.currentTime + 0.025;
+        const note = track.melody[musicStep % track.melody.length];
+        playMusicNote(note, 0.13, track.wave, 0.055, when);
+        if (musicStep % 4 === 0) playMusicNote(track.bass[Math.floor(musicStep / 4) % track.bass.length], 0.32, "triangle", 0.075, when);
+        if (musicStep % 8 === 0) track.chords[musicStep / 8 % track.chords.length].forEach(chordNote => playMusicNote(chordNote, 0.85, "sine", 0.012, when));
+        musicStep++;
+      }, 180);
+    } catch (err) { console.warn("Arcade music unavailable", err); }
+  }
+
+  function stopMusic() {
+    if (musicTimer) clearInterval(musicTimer);
+    musicTimer = null;
+    if (audioContext && musicGain) musicGain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.04);
+  }
 
   function updateProfile() {
     const user = window.farcasterContext?.user;
@@ -241,6 +298,15 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     if (profileImageUrl) { avatar.hidden = false; if (avatar.src !== profileImageUrl) avatar.src = profileImageUrl; }
     else { avatar.removeAttribute("src"); avatar.hidden = true; fallback.hidden = false; }
     document.getElementById("profileConnectBtn").textContent = walletAddress ? "Wallet connected ✓" : "Connect wallet";
+    startBtn.disabled = !walletAddress || !contractInstance;
+    startBtn.textContent = walletAddress ? "▶ Start Game" : "🔒 Connect wallet first";
+    pauseBtn.disabled = state !== "running" && state !== "paused";
+    restartBtn.disabled = !walletAddress || !contractInstance;
+    if (walletAddress && contractInstance && state === "ready") {
+      overlayTitle.textContent = "READY TO PLAY";
+      overlayText.textContent = "Wallet connected. Press Start Game when you are ready.";
+      overlayBtn.textContent = "▶ Start Game";
+    }
   }
 
   function setPage(pageId) {
@@ -333,8 +399,11 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
   async function connectWallet() {
     if (walletAddress && contractInstance) return true;
     if (walletConnecting) return false;
+    startMusic();
     walletConnecting = true;
     walletBtn.disabled = true;
+    overlayBtn.disabled = true;
+    showOverlay("CONNECTING WALLET", "Approve the connection in your wallet. The game unlocks after the Base wallet connects.", "Connecting…");
     statusTitle.textContent = "Connecting wallet…";
     statusText.textContent = "Approve the connection request in your wallet.";
     try {
@@ -345,6 +414,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
       if (!raw) {
         statusTitle.textContent = "Wallet unavailable";
         statusText.textContent = "Open this app inside Farcaster, or install/unlock an EVM wallet extension.";
+        showOverlay("WALLET UNAVAILABLE", "Open Snake inside Farcaster or unlock a supported wallet extension, then try again.", "Try Wallet Connection");
         return false;
       }
 
@@ -392,6 +462,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
       console.error("Wallet connection failed", err);
       statusTitle.textContent = "Wallet connection failed";
       statusText.textContent = err?.shortMessage || err?.message || "Could not connect. Check the wallet and network, then retry.";
+      showOverlay("CONNECTION FAILED", statusText.textContent, "Try Again");
       walletAddress = null;
       contractInstance = null;
       userSigner = null;
@@ -404,6 +475,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     } finally {
       walletConnecting = false;
       walletBtn.disabled = false;
+      overlayBtn.disabled = false;
     }
   }
 
@@ -535,12 +607,18 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     if (timer) clearInterval(timer);
     snake = [{x:9,y:12},{x:8,y:12},{x:7,y:12}];
     dir = {x:1,y:0}; nextDir = {x:1,y:0};
-    score = 0; tickMs = 145; state = "ready";
+    score = 0; tickMs = 145; state = "ready"; applesEaten = 0; level = 1; slowUntil = 0;
+    pauseBtn.textContent = "⏸ Pause";
+    bonusFood = null; bonusExpiresAt = 0;
     scoreEl.textContent = "0";
+    levelEl.textContent = "1";
+    gameStatus.textContent = "Swipe or use arrow keys · Golden fruit gives bonus points and slow motion.";
     submitScoreBtn.classList.add("hidden");
     placeFood();
     draw();
-    showOverlay("SNAKE CLASSIC", "Swipe on screen or use arrows to move.", "Start Game");
+    updateProfile();
+    if (!walletAddress) showOverlay("CONNECT TO PLAY", "Connect your wallet first. Playing unlocks only after the wallet is connected.", "1 · Connect Wallet");
+    else showOverlay("READY TO PLAY", "Wallet connected. Press Start Game when you are ready.", "▶ Start Game");
   }
 
   function placeFood() {
@@ -550,15 +628,40 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     food = p;
   }
 
+  function placeBonusFood() {
+    let p;
+    do { p = {x: Math.floor(Math.random()*GRID), y: Math.floor(Math.random()*GRID)}; }
+    while ((food && p.x === food.x && p.y === food.y) || snake.some(s => s.x === p.x && s.y === p.y));
+    bonusFood = p;
+    bonusExpiresAt = Date.now() + 8500;
+    gameStatus.textContent = "✨ Golden fruit appeared · grab it for +30 points and 5 seconds of slow motion!";
+  }
+
+  function updateSpeed() {
+    level = 1 + Math.floor(score / 100);
+    levelEl.textContent = String(level);
+    const baseSpeed = Math.max(72, 145 - (level - 1) * 9);
+    const nextSpeed = Date.now() < slowUntil ? Math.min(230, baseSpeed + 55) : baseSpeed;
+    if (nextSpeed !== tickMs && state === "running") {
+      tickMs = nextSpeed;
+      clearInterval(timer);
+      timer = setInterval(step, tickMs);
+    } else tickMs = nextSpeed;
+    if (Date.now() < slowUntil) gameStatus.textContent = `⏱ Slow motion · ${Math.ceil((slowUntil-Date.now())/1000)}s · Level ${level}`;
+    else if (!bonusFood) gameStatus.textContent = `Level ${level} · Golden fruit appears every 5 apples.`;
+  }
+
   function start() {
     if (!walletAddress || !contractInstance) {
-      showOverlay("WALLET REQUIRED", "Connect your Base wallet before playing. Your score will be tied to this wallet.", "Connect Wallet to Play");
+      showOverlay("CONNECT TO PLAY", "Connect your wallet first. Playing unlocks only after the wallet is connected.", "1 · Connect Wallet");
       setPage("gamePage");
       return;
     }
     if (state === "running") return;
     if (state === "over" || state === "won") reset();
     state = "running";
+    pauseBtn.disabled = false;
+    restartBtn.disabled = false;
     overlay.classList.add("hidden");
     if (timer) clearInterval(timer);
     timer = setInterval(step, tickMs);
@@ -568,9 +671,11 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     if (state === "running") {
       state = "paused";
       clearInterval(timer);
+      pauseBtn.textContent = "▶ Resume";
       showOverlay("PAUSED", "Game is paused.", "Resume");
     } else if (state === "paused") {
       state = "ready";
+      pauseBtn.textContent = "⏸ Pause";
       start();
     }
   }
@@ -578,6 +683,8 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
   function gameOver() {
     state = "over";
     clearInterval(timer);
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = "⏸ Pause";
     if (score > best) {
       best = score;
       bestEl.textContent = best;
@@ -624,8 +731,13 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     if (state !== "running") return;
     dir = nextDir;
     const head = {x: (snake[0].x + dir.x + GRID) % GRID, y: (snake[0].y + dir.y + GRID) % GRID};
-
-    const eating = head.x === food.x && head.y === food.y;
+    if (bonusFood && Date.now() >= bonusExpiresAt) {
+      bonusFood = null;
+      gameStatus.textContent = `Level ${level} · Golden fruit appears every 5 apples.`;
+    }
+    const eatingRegular = head.x === food.x && head.y === food.y;
+    const eatingBonus = bonusFood && head.x === bonusFood.x && head.y === bonusFood.y;
+    const eating = eatingRegular || eatingBonus;
     const bodyToCheck = eating ? snake : snake.slice(0, -1);
     if (bodyToCheck.some(s => s.x === head.x && s.y === head.y)) {
       gameOver();
@@ -635,32 +747,68 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     snake.unshift(head);
     if (eating) {
       playEatSound();
-      score += 10;
+      if (eatingBonus) {
+        score += 30;
+        bonusFood = null;
+        slowUntil = Date.now() + 5000;
+        gameStatus.textContent = "✨ Golden fruit collected · +30 points · slow motion activated!";
+      } else {
+        score += 10;
+        applesEaten++;
+        if (applesEaten % 5 === 0 && !bonusFood) placeBonusFood();
+      }
       scoreEl.textContent = score;
-      placeFood();
-      tickMs = Math.max(70, 145 - Math.floor(score/50)*8);
-      clearInterval(timer);
-      timer = setInterval(step, tickMs);
+      if (eatingRegular) placeFood();
+      updateSpeed();
     } else {
       snake.pop();
+      updateSpeed();
     }
     draw();
   }
 
   function draw() {
-    ctx.fillStyle = "#020b12";
+    const bg = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    bg.addColorStop(0,"#03121b"); bg.addColorStop(1,"#020812");
+    ctx.fillStyle = bg;
     ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    if (food) {
-      ctx.fillStyle = "#ff385c";
-      ctx.beginPath();
-      ctx.arc(food.x*CELL+CELL/2, food.y*CELL+CELL/2, CELL*.36, 0, Math.PI*2);
-      ctx.fill();
+    ctx.strokeStyle = "rgba(62,135,135,.08)";
+    ctx.lineWidth = 1;
+    for (let i=1;i<GRID;i++) {
+      ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width,i*CELL); ctx.stroke();
     }
-
+    if (food) {
+      const x=food.x*CELL+CELL/2, y=food.y*CELL+CELL/2;
+      ctx.shadowColor="#ff405f"; ctx.shadowBlur=17;
+      ctx.fillStyle = "#ff405f";
+      ctx.beginPath();
+      ctx.arc(x,y,CELL*.34,0,Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fillStyle="#ff9aab"; ctx.beginPath(); ctx.arc(x-CELL*.1,y-CELL*.1,CELL*.08,0,Math.PI*2); ctx.fill();
+    }
+    if (bonusFood) {
+      const x=bonusFood.x*CELL+CELL/2, y=bonusFood.y*CELL+CELL/2;
+      const pulse=.29 + Math.sin(Date.now()/110)*.04;
+      ctx.shadowColor="#ffd45a"; ctx.shadowBlur=24;
+      ctx.fillStyle="#ffd45a"; ctx.beginPath(); ctx.arc(x,y,CELL*pulse,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0; ctx.fillStyle="#fff5bd"; ctx.beginPath(); ctx.arc(x-CELL*.09,y-CELL*.1,CELL*.07,0,Math.PI*2); ctx.fill();
+    }
     snake.forEach((s, i) => {
-      ctx.fillStyle = i === 0 ? "#8eff55" : `hsl(${140 - i*1.2}, 85%, 50%)`;
-      ctx.fillRect(s.x*CELL+2, s.y*CELL+2, CELL-4, CELL-4);
+      const x=s.x*CELL+2,y=s.y*CELL+2,size=CELL-4;
+      const light=Math.max(30,54-i*.32);
+      ctx.fillStyle = i === 0 ? "#a9ff65" : `hsl(${145-i*.35}, 78%, ${light}%)`;
+      ctx.shadowColor=i===0?"#9aff66":"transparent"; ctx.shadowBlur=i===0?12:0;
+      ctx.beginPath(); ctx.roundRect(x,y,size,size,i===0?7:5); ctx.fill();
+      ctx.shadowBlur=0;
+      if (i===0) {
+        const eyeR=2.6, cx=x+size/2, cy=y+size/2;
+        const ex=dir.x*3.1, ey=dir.y*3.1;
+        ctx.fillStyle="#052018";
+        ctx.beginPath(); ctx.arc(cx+ex-dir.y*4,cy+ey+dir.x*4,eyeR,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx+ex+dir.y*4,cy+ey-dir.x*4,eyeR,0,Math.PI*2); ctx.fill();
+      }
     });
   }
 
@@ -689,13 +837,17 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     touchX = 0; touchY = 0;
   }, {passive:true});
 
+  document.addEventListener("pointerdown", startMusic, { once:true });
   walletBtn.addEventListener("click", connectWallet);
   document.getElementById("profileConnectBtn").addEventListener("click", connectWallet);
   submitScoreBtn.addEventListener("click", submitScore);
   soundBtn.addEventListener("click", () => {
     soundOn = !soundOn;
-    soundBtn.textContent = soundOn ? "🔊 Sound: On" : "🔊 Sound: Off";
+    soundBtn.textContent = soundOn ? "♫ Music On" : "♫ Music Off";
+    soundBtn.setAttribute("aria-pressed", String(soundOn));
+    if (soundOn) startMusic(); else stopMusic();
   });
+  musicTrack.addEventListener("change", () => { if (soundOn) startMusic(); });
   overlayBtn.addEventListener("click", () => {
     if (!walletAddress || !contractInstance) { connectWallet(); return; }
     if (state === "over" || state === "won") reset();
@@ -718,9 +870,9 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     }
   });
 
-  document.getElementById("startBtn").addEventListener("click", start);
-  document.getElementById("pauseBtn").addEventListener("click", pause);
-  document.getElementById("restartBtn").addEventListener("click", () => { if (!walletAddress) { connectWallet(); return; } reset(); start(); });
+  startBtn.addEventListener("click", () => { if (!walletAddress || !contractInstance) { connectWallet(); return; } start(); });
+  pauseBtn.addEventListener("click", pause);
+  restartBtn.addEventListener("click", () => { if (!walletAddress || !contractInstance) return; reset(); start(); });
 
   reset();
   updateProfile();
