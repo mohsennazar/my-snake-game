@@ -1,0 +1,19 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjE1MTE0LCJ0eXBlIjoiY3VzdG9keSIsImtleSI6IjB4NzM1NjdFODNGMDg5NThGYzQ4RTlFNkJBNzk5M2E1ZURiNkZEZjNjRiJ9",
+    "payload": "eyJkb21haW4iOiJteS1zbmFrZS1nYW1lLXdoZWF0LnZlcmNlbC5hcHAifQ",
+    "signature": "jgUKujV7jZb90beZDjnOT8boLY4jbMb6Z9YJgTtGFd9hAs5hPUvh9a9zdPZXCvTHWCXmHldT7x2gubKd+LuWfRs="
+},
+  "miniapp": {
+    "version": "1",
+    "name": "Snake Base",
+    "iconUrl": "https://placehold.co/1024x1024/030b14/38f58a.png?text=Snake",
+    "homeUrl": "https://my-snake-game-wheat.vercel.app/",
+    "splashImageUrl": "https://placehold.co/200x200/030b14/38f58a.png?text=Snake",
+    "splashBackgroundColor": "#030b14",
+    "primaryCategory": "games",
+    "requiredChains": ["eip155:8453"],
+    "requiredCapabilities": ["wallet.getEthereumProvider"],
+    "tags": ["snake", "base", "arcade", "game"]
+  }
+}
