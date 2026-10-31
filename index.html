@@ -82,6 +82,24 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
   .app{padding-top:6px}.top-nav{margin-bottom:7px;padding:3px}.nav-tab{padding:6px 10px}
   .canvas-wrap{width:min(66vh,70vw)}.game-toolbar{margin-bottom:4px}
 }
+body.game-mode{overflow:hidden;min-height:100dvh}
+body.game-mode .app{width:100%;max-width:none;min-height:100dvh;padding:0;display:flex;align-items:stretch}
+body.game-mode .app>header,body.game-mode .app>.top-nav{display:none}
+body.game-mode #gamePage{width:100%;min-height:100dvh;display:grid;place-items:center}
+body.game-mode .game-shell{width:100%;max-width:none;margin:0}
+body.game-mode .board-card{width:100%;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 74px) 8px calc(env(safe-area-inset-bottom) + 36px);border:0;border-radius:0;box-shadow:none;background:transparent;display:flex;flex-direction:column;justify-content:center}
+body.game-mode .game-toolbar{position:fixed;z-index:5;top:env(safe-area-inset-top);left:8px;right:8px;margin:0;padding:7px 9px;border:1px solid #174b60;border-radius:14px;background:#04131feF;backdrop-filter:blur(12px)}
+body.game-mode .canvas-wrap{width:min(94vw,78vh,calc(100dvh - 180px));max-width:760px}
+body.game-mode .game-status{position:fixed;z-index:5;left:8px;right:8px;bottom:env(safe-area-inset-bottom);padding:8px;background:#04131feF;border:1px solid #174b60;border-radius:12px}
+body.game-mode .overlay{position:fixed;z-index:4;inset:0;border-radius:0;background:#020914d9}
+body.game-mode .game-tools{gap:5px}
+body.game-mode .game-tool{min-height:32px;padding:6px 8px;font-size:10px}
+@media(max-width:560px){
+  body.game-mode .game-toolbar{align-items:center;padding:6px}
+  body.game-mode .game-stats{width:100%;justify-content:space-between;gap:6px}
+  body.game-mode .game-tools{width:100%;justify-content:center}
+  body.game-mode .canvas-wrap{width:min(94vw,calc(100dvh - 210px))}
+}
 </style>
 </head>
 <body>
@@ -113,6 +131,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
         <button class="game-tool" id="startBtn" type="button" disabled>🔒 Connect wallet first</button>
         <button class="game-tool" id="pauseBtn" type="button" disabled>⏸ Pause</button>
         <button class="game-tool" id="restartBtn" type="button" disabled>↻ Restart</button>
+        <button class="game-tool" id="exitGameBtn" type="button" aria-label="Exit immersive game">↙ Exit</button>
         <select class="game-tool track-select" id="musicTrack" aria-label="Arcade music track">
           <option value="pixel">🎵 Pixel Sunrise</option>
           <option value="neon">🎵 Neon Sprint</option>
@@ -160,7 +179,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
 </main>
 
 <script>
-// لاجیک اصلی بازی
+// Game logic
 (() => {
   "use strict";
 
@@ -203,6 +222,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
   const startBtn = document.getElementById("startBtn");
   const pauseBtn = document.getElementById("pauseBtn");
   const restartBtn = document.getElementById("restartBtn");
+  const exitGameBtn = document.getElementById("exitGameBtn");
   const levelEl = document.getElementById("level");
   const gameStatus = document.getElementById("gameStatus");
 
@@ -310,8 +330,10 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
   }
 
   function setPage(pageId) {
+    if (pageId !== "gamePage" && state === "running") pause();
     document.querySelectorAll(".page").forEach(page => page.classList.toggle("active", page.id === pageId));
     document.querySelectorAll(".nav-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.page === pageId));
+    document.body.classList.toggle("game-mode", pageId === "gamePage" && state === "running");
     if (pageId === "leaderboardPage") loadLeaderboard();
   }
   document.querySelectorAll(".nav-tab").forEach(tab => tab.addEventListener("click", () => setPage(tab.dataset.page)));
@@ -660,6 +682,8 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
     if (state === "running") return;
     if (state === "over" || state === "won") reset();
     state = "running";
+    document.body.classList.add("game-mode");
+    startBtn.classList.add("hidden");
     pauseBtn.disabled = false;
     restartBtn.disabled = false;
     overlay.classList.add("hidden");
@@ -873,6 +897,10 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
   startBtn.addEventListener("click", () => { if (!walletAddress || !contractInstance) { connectWallet(); return; } start(); });
   pauseBtn.addEventListener("click", pause);
   restartBtn.addEventListener("click", () => { if (!walletAddress || !contractInstance) return; reset(); start(); });
+  exitGameBtn.addEventListener("click", () => {
+    if (state === "running") pause();
+    document.body.classList.remove("game-mode");
+  });
 
   reset();
   updateProfile();
@@ -880,7 +908,7 @@ canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid #0d6d61;border
 })();
 </script>
 
-<!-- دقیقا طبق مستندات رسمی: ایمپورت ماژول فارکستر در پایین‌ترین نقطه فایل -->
+<!-- Load the Farcaster Mini App SDK module after the game code. -->
 <script type="module">
   window.farcasterSdkReady = (async () => {
     let sdkModule;
