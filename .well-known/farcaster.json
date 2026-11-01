@@ -7,9 +7,9 @@
   "miniapp": {
     "version": "1",
     "name": "Snake Base",
-    "iconUrl": "https://placehold.co/1024x1024/030b14/38f58a.png?text=Snake",
+    "iconUrl": "https://my-snake-game-wheat.vercel.app/snake-base-icon-v1.png",
     "homeUrl": "https://my-snake-game-wheat.vercel.app/",
-    "splashImageUrl": "https://placehold.co/200x200/030b14/38f58a.png?text=Snake",
+    "splashImageUrl": "https://my-snake-game-wheat.vercel.app/snake-base-splash-v1.png",
     "splashBackgroundColor": "#030b14",
     "primaryCategory": "games",
     "requiredChains": ["eip155:8453"],
