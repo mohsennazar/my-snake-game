@@ -12,6 +12,8 @@
     "splashImageUrl": "https://my-snake-game-wheat.vercel.app/snake-base-splash-v1.png",
     "splashBackgroundColor": "#030b14",
     "primaryCategory": "games",
+    "heroImageUrl": "https://my-snake-game-wheat.vercel.app/snake-base-cast-v2.png",
+    "ogImageUrl": "https://my-snake-game-wheat.vercel.app/snake-base-cast-v2.png",
     "requiredChains": ["eip155:8453"],
     "requiredCapabilities": ["wallet.getEthereumProvider"],
     "tags": ["snake", "base", "arcade", "game"]
